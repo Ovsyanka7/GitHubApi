@@ -1,7 +1,6 @@
 package com.example.githubapi
 
 import android.util.JsonReader
-import android.util.Log
 import java.io.InputStream
 import java.io.InputStreamReader
 import javax.net.ssl.HttpsURLConnection
@@ -93,65 +92,5 @@ class MyJsonReader {
         jsonReader.close()
         connection.disconnect()
         return reposList
-    }
-
-    fun readCommits(connection: HttpsURLConnection): MutableList<Commit> {
-        val commitList: MutableList<Commit> = mutableListOf()
-
-        val responseBody: InputStream = connection.inputStream
-        val responseBodyReader = InputStreamReader(responseBody, "UTF-8")
-        val jsonReader = JsonReader(responseBodyReader)
-
-        jsonReader.beginArray()
-        while (jsonReader.hasNext()) {
-            jsonReader.beginObject()
-            val commit = Commit()
-
-            while (jsonReader.hasNext()) {
-                when (jsonReader.nextName()) {
-                    "commit" -> {
-                        jsonReader.beginObject()
-                        while (jsonReader.hasNext()) {
-                            when (jsonReader.nextName()) {
-                                "author" -> {
-                                    jsonReader.beginObject()
-                                    while (jsonReader.hasNext()) {
-                                        when (jsonReader.nextName()) {
-                                            "name" -> {
-                                                commit.author = jsonReader.nextString()
-                                            }
-                                            "date" -> {
-                                                commit.date = jsonReader.nextString()
-                                            }
-                                            else -> {
-                                                jsonReader.skipValue()
-                                            }
-                                        }
-                                    }
-                                    jsonReader.endObject()
-                                }
-                                "message" -> {
-                                    commit.message = jsonReader.nextString()
-                                }
-                                else -> {
-                                    jsonReader.skipValue()
-                                }
-                            }
-                        }
-                        jsonReader.endObject()
-                    }
-                    else -> {
-                        jsonReader.skipValue()
-                    }
-                }
-            }
-            commitList.add(commit)
-            jsonReader.endObject()
-        }
-        jsonReader.endArray()
-
-        jsonReader.close()
-        connection.disconnect()
-        return commitList
     }
 }
